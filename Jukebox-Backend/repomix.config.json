@@ -1,0 +1,14 @@
+{
+  "output": {
+    "filePath": "backend.txt"
+  },
+  "ignore": {
+    "customPatterns": [
+      "appsettings.Development.json",
+      "appsettings.Local.json",
+      "appsettings.Production.json",
+      "*.db",
+      "*.log"
+    ]
+  }
+}
