@@ -137,31 +137,26 @@ namespace Jukebox_Backend.Services
         // get user profile
         public async Task<UserResponse?> GetByIdAsync(string userId)
         {
-            try
-            {
-                var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null) return null;
 
-                if (user is null) return null;
+            var roles = await _userManager.GetRolesAsync(user);
 
-                return new UserResponse
-                {
-                    UserId = user.Id,
-                    Email = user.Email ?? string.Empty,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Gender = user.Gender,
-                    Country = user.Country,
-                    Birthday = user.Birthday,
-                    CreatedAt = user.CreatedAt,
-                    Coins = user.Coins,
-                    TotalSongsPlayed = user.TotalSongsPlayed,
-                    IsActive = user.IsActive
-                };
-            }
-            catch (Exception)
+            return new UserResponse
             {
-                return null;
-            }
+                UserId = user.Id,
+                Email = user.Email ?? string.Empty,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Gender = user.Gender,
+                Country = user.Country,
+                Birthday = user.Birthday,
+                CreatedAt = user.CreatedAt,
+                Coins = user.Coins,
+                TotalSongsPlayed = user.TotalSongsPlayed,
+                IsActive = user.IsActive,
+                Role = roles.FirstOrDefault() ?? "User"
+            };
         }
 
         // update user profile
