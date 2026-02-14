@@ -227,13 +227,30 @@ namespace Jukebox_Backend.Controllers
             }
         }
 
-        // soft delete ticket
-        [Authorize(Roles = "SuperAdmin")]
+        // soft delete ticket (admin can delete any, user can delete own)
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId is null)
+                    return Unauthorized(new { message = "User not found" });
+
+                var isAdmin = User.IsInRole("SuperAdmin");
+
+                // Regular users can only delete their own tickets
+                if (!isAdmin)
+                {
+                    var ticket = await _ticketService.GetByIdAsync(id);
+                    if (ticket is null)
+                        return NotFound(new { message = "Ticket not found" });
+
+                    if (ticket.UserId != userId)
+                        return Forbid();
+                }
+
                 var result = await _ticketService.DeleteAsync(id);
 
                 if (!result)
