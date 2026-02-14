@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -171,6 +172,29 @@ app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+//middleware to check if user is active on every request, altrimenti se diasattivo utente ed e ancora loggato può avere ancora accesso.
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true)
+    {
+        var userManager = context.RequestServices
+            .GetRequiredService<UserManager<ApplicationUser>>();
+        var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId != null)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null || !user.IsActive)
+            {
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsJsonAsync(
+                    new { message = "Account deactivated" });
+                return;
+            }
+        }
+    }
+    await next();
+});
 app.MapControllers();
 
 Log.Information("Application started successfully");
