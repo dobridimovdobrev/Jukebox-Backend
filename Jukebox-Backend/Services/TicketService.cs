@@ -13,7 +13,7 @@ namespace Jukebox_Backend.Services
         private static readonly Dictionary<string, List<string>> ValidTransitions = new()
         {
             { "open", new List<string> { "in_progress", "closed" } },
-            { "in_progress", new List<string> { "answered" } },
+            { "in_progress", new List<string> { "answered", "closed" } },
             { "answered", new List<string> { "in_progress", "closed" } },
             { "closed", new List<string>() }
         };

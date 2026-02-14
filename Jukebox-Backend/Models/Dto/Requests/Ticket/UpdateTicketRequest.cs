@@ -11,7 +11,7 @@ namespace Jukebox_Backend.Models.Dto.Requests
         public string? Description { get; set; }
 
         [StringLength(50, ErrorMessage = "Status must be max 50 characters")]
-        [RegularExpression("^(Open|In Progress|Resolved|Closed)$", ErrorMessage = "Status must be Open, In Progress, Resolved, or Closed")]
+        [RegularExpression("^(open|in_progress|answered|closed)$", ErrorMessage = "Status must be open, in_progress, answered, or closed")]
         public string? Status { get; set; }
 
         [StringLength(20, ErrorMessage = "Priority must be max 20 characters")]
