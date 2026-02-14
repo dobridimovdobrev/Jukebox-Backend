@@ -10,6 +10,7 @@
         public int? CareerStart { get; set; }
         public int? CareerEnd { get; set; }
         public int? SongsCount { get; set; }
+        public int TotalPlayed { get; set; }
         public string? YoutubeChannelId { get; set; }
         public string? MusicBrainzId { get; set; }
         public string? IsrcCode { get; set; }

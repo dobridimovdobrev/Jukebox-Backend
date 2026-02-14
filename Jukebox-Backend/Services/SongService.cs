@@ -250,26 +250,6 @@ namespace Jukebox_Backend.Services
             }
         }
 
-        // increment play count
-        public async Task<bool> IncrementPlayCountAsync(int id)
-        {
-            try
-            {
-                var song = await _context.Songs
-                    .FirstOrDefaultAsync(s => s.SongId == id && !s.IsDeleted);
-
-                if (song is null) return false;
-
-                song.SongsPlayed++;
-
-                return await SaveAsync();
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         // soft delete song
         public async Task<bool> DeleteAsync(int id)
         {
@@ -289,6 +269,26 @@ namespace Jukebox_Backend.Services
             {
                 return false;
             }
+        }
+
+        // increment play count for song and artist
+        public async Task<bool> IncrementPlayCountAsync(int id)
+        {
+            var song = await _context.Songs
+                .Include(s => s.Artist)
+                .FirstOrDefaultAsync(s => s.SongId == id && !s.IsDeleted);
+
+            if (song is null) return false;
+
+            song.SongsPlayed++;
+
+            // increment total played for artist
+            if (song.Artist != null)
+            {
+                song.Artist.TotalPlayed++;
+            }
+
+            return await SaveAsync();
         }
     }
 }

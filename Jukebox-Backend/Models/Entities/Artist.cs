@@ -24,7 +24,11 @@ namespace Jukebox_Backend.Models.Entities
         public DateTime? CareerStart { get; set; }
         public DateTime? CareerEnd { get; set; }
 
+        // all songs of artist
         public int? SongsCount { get; set; } = 0;
+
+        // the value that should increment when a song is played
+        public int TotalPlayed { get; set; } = 0;
 
         [MaxLength(100)]
         public string? YoutubeChannelId { get; set; } = string.Empty;

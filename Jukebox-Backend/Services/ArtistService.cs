@@ -19,7 +19,6 @@ namespace Jukebox_Backend.Services
                     .AsNoTracking()
                     .Where(a => !a.IsDeleted);
 
-                // filters
                 if (!string.IsNullOrEmpty(request.Name))
                     query = query.Where(a => a.Name.Contains(request.Name));
 
@@ -54,6 +53,7 @@ namespace Jukebox_Backend.Services
                         CareerStart = a.CareerStart.HasValue ? a.CareerStart.Value.Year : null,
                         CareerEnd = a.CareerEnd.HasValue ? a.CareerEnd.Value.Year : null,
                         SongsCount = a.SongsCount,
+                        TotalPlayed = a.TotalPlayed,
                         YoutubeChannelId = a.YoutubeChannelId,
                         MusicBrainzId = a.MusicBrainzId,
                         IsrcCode = a.IsrcCode,
@@ -98,6 +98,7 @@ namespace Jukebox_Backend.Services
                     CareerStart = artist.CareerStart?.Year,
                     CareerEnd = artist.CareerEnd?.Year,
                     SongsCount = artist.SongsCount,
+                    TotalPlayed = artist.TotalPlayed,
                     YoutubeChannelId = artist.YoutubeChannelId,
                     MusicBrainzId = artist.MusicBrainzId,
                     IsrcCode = artist.IsrcCode,
