@@ -146,6 +146,40 @@ namespace Jukebox_Backend.Controllers
             }
         }
 
+        // user reply to ticket
+        [Authorize]
+        [HttpPost("{id}/reply")]
+        public async Task<IActionResult> UserReply(int id, [FromBody] UserReplyRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (userId is null)
+                {
+                    return Unauthorized(new { message = "User not found" });
+                }
+
+                var result = await _ticketService.UserReplyAsync(id, request, userId);
+
+                if (result is null)
+                {
+                    return BadRequest(new { message = "Reply failed. Ticket may be closed or not found." });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
         // valid transitions for current status
         [Authorize]
         [HttpGet("{id}/transitions")]

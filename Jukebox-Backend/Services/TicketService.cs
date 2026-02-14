@@ -292,6 +292,63 @@ namespace Jukebox_Backend.Services
             }
         }
 
+        // user reply to ticket
+        public async Task<TicketResponse?> UserReplyAsync(int ticketId, UserReplyRequest request, string userId)
+        {
+            try
+            {
+                var ticket = await _context.Tickets
+                    .FirstOrDefaultAsync(t => t.TicketId == ticketId && !t.IsDeleted && t.UserId == userId);
+
+                if (ticket is null) return null;
+
+                if (ticket.Status == "closed") return null;
+
+                // Add user reply to history
+                if (!string.IsNullOrWhiteSpace(request.Message) || !string.IsNullOrEmpty(request.AttachmentUrl))
+                {
+                    _context.TicketHistories.Add(new TicketHistory
+                    {
+                        TicketId = ticketId,
+                        Type = "user_reply",
+                        Message = request.Message?.Trim(),
+                        AttachmentUrl = request.AttachmentUrl,
+                        UserId = userId,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                // If status was "answered", reopen to "in_progress" so admin knows user replied
+                if (ticket.Status == "answered")
+                {
+                    _context.TicketHistories.Add(new TicketHistory
+                    {
+                        TicketId = ticketId,
+                        Type = "transition",
+                        FromStatus = "answered",
+                        ToStatus = "in_progress",
+                        Note = "Reopened by user reply",
+                        UserId = userId,
+                        CreatedAt = DateTime.UtcNow
+                    });
+
+                    ticket.Status = "in_progress";
+                    ticket.ResolvedAt = null;
+                }
+
+                await SaveAsync();
+
+                Log.Information("TICKET #{Id} USER REPLY by {User}", ticketId, userId);
+
+                return await GetByIdAsync(ticketId);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("TICKET USER REPLY ERROR: {Msg}", ex.Message);
+                return null;
+            }
+        }
+
         // update ticket 
         public async Task<TicketResponse?> UpdateAsync(int id, UpdateTicketRequest request)
         {
