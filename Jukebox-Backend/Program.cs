@@ -195,6 +195,10 @@ app.Use(async (context, next) =>
     }
     await next();
 });
+
+// serve static files from wwwroot (default)
+app.UseStaticFiles();
+
 app.MapControllers();
 
 Log.Information("Application started successfully");
